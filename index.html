@@ -122,6 +122,10 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
 .footer-txt{font-size:14px;color:#c07898;}
 .form-label{font-size:13px;font-weight:700;color:#d4608a;margin-bottom:10px;display:block;}
 .empty-msg{text-align:center;padding:20px;font-size:13px;color:#c090ae;}
+.profile-photo-wrap{position:relative;width:64px;height:64px;margin:0 auto 6px;cursor:pointer;}
+.profile-photo-wrap:hover .photo-edit-btn{opacity:1;}
+.photo-edit-btn{position:absolute;bottom:0;right:0;background:#ffd6e8;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0;transition:opacity 0.2s;border:1.5px solid #fff;}
+
 </style>
 </head>
 <body>
@@ -142,8 +146,30 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
   <div class="section">
     <div class="sec-title">👫 우리 프로필</div>
     <div class="profile-row">
-      <div class="profile-card"><div class="profile-emoji">🧑</div><div class="profile-name">박세원</div><div class="profile-info">1996년 3월 8일</div><div class="profile-age" id="age-sw">...</div><div class="profile-info">만 나이</div></div>
-      <div class="profile-card"><div class="profile-emoji">👧</div><div class="profile-name">이지현</div><div class="profile-info">1999년 5월 15일</div><div class="profile-age" id="age-jh">...</div><div class="profile-info">만 나이</div></div>
+      <div class="profile-card">
+  <div class="profile-photo-wrap" onclick="document.getElementById('upload-sw').click()">
+    <img id="photo-sw" src="" style="display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;">
+    <div id="emoji-sw" class="profile-emoji">&#x1F9D1;</div>
+    <div class="photo-edit-btn">&#x1F4F7;</div>
+  </div>
+  <input type="file" id="upload-sw" accept="image/*" style="display:none" onchange="setPhoto('sw',this)">
+  <div class="profile-name">&#xBC15;&#xC138;&#xC6D0;</div>
+  <div class="profile-info">1996&#xB144; 3&#xC6D4; 8&#xC77C;</div>
+  <div class="profile-age" id="age-sw">...</div>
+  <div class="profile-info">&#xB9CC; &#xB098;&#xC774;</div>
+</div>
+      <div class="profile-card">
+  <div class="profile-photo-wrap" onclick="document.getElementById('upload-jh').click()">
+    <img id="photo-jh" src="" style="display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;">
+    <div id="emoji-jh" class="profile-emoji">&#x1F467;</div>
+    <div class="photo-edit-btn">&#x1F4F7;</div>
+  </div>
+  <input type="file" id="upload-jh" accept="image/*" style="display:none" onchange="setPhoto('jh',this)">
+  <div class="profile-name">&#xC774;&#xC9C0;&#xD604;</div>
+  <div class="profile-info">1999&#xB144; 5&#xC6D4; 15&#xC77C;</div>
+  <div class="profile-age" id="age-jh">...</div>
+  <div class="profile-info">&#xB9CC; &#xB098;&#xC774;</div>
+</div>
     </div>
   </div>
   <div class="footer"><div class="footer-txt">박세원 ♡ 이지현 — 영원히 🩷</div></div>
@@ -279,11 +305,11 @@ function calcAge(y,m,d){
   return a;
 }
 var ddayVal = Math.floor((NOW-START)/86400000)+1;
-document.getElementById('dday').textContent = ddayVal.toLocaleString();
+document.getElementById('dday').textContent = '+'+ddayVal.toLocaleString();
 document.getElementById('hero-sub').textContent = '사귄 지 '+ddayVal.toLocaleString()+'일째';
-document.getElementById('tobirthday-sw').textContent = daysUntil(3,8);
-document.getElementById('tobirthday-jh').textContent = daysUntil(5,15);
-document.getElementById('toanni').textContent = daysUntil(4,17);
+document.getElementById('tobirthday-sw').textContent = 'D-'+daysUntil(3,8);
+document.getElementById('tobirthday-jh').textContent = 'D-'+daysUntil(5,15);
+document.getElementById('toanni').textContent = 'D-'+daysUntil(4,17);
 document.getElementById('age-sw').textContent = calcAge(1996,3,8);
 document.getElementById('age-jh').textContent = calcAge(1999,5,15);
 
@@ -294,7 +320,30 @@ function goPage(p) {
     document.getElementById('nav-'+t).classList.toggle('active', t===p);
   });
   if(p==='fortune' && !fortuneCache['sw']) loadFortune('sw');
-  if(p==='calendar') renderCalendar();
+  if(p==='calendar') function setPhoto(who, input) {
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById('photo-'+who);
+    var emoji = document.getElementById('emoji-'+who);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    emoji.style.display = 'none';
+    localStorage.setItem('photo-'+who, e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+// 저장된 사진 불러오기
+['sw','jh'].forEach(function(who) {
+  var saved = localStorage.getItem('photo-'+who);
+  if(saved) {
+    var img = document.getElementById('photo-'+who);
+    var emoji = document.getElementById('emoji-'+who);
+    if(img) { img.src = saved; img.style.display = 'block'; emoji.style.display = 'none'; }
+  }
+});
+renderCalendar();
   window.scrollTo(0,0);
 }
 
