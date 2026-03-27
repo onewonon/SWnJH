@@ -288,7 +288,9 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
   messagingSenderId: "92919737506",
   appId: "1:92919737506:web:31cd80fe0ccc4195913bfb"
 };
-firebase.initializeApp(firebaseConfig);
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch(e) {}
 var db = firebase.database();
 
 var START = new Date('2022-04-17');
