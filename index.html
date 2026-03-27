@@ -279,6 +279,7 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 <script>var firebaseConfig = {
   apiKey: "AIzaSyDI147P7vWvsD_HV6opk-LOUBtnJFc1hHc",
   authDomain: "swnjh-57ed2.firebaseapp.com",
@@ -292,6 +293,7 @@ try {
   firebase.initializeApp(firebaseConfig);
 } catch(e) {}
 var db = firebase.database();
+var storage = firebase.storage();
 
 var START = new Date('2022-04-17');
 var NOW = new Date();
@@ -329,25 +331,30 @@ function goPage(p) {
 function setPhoto(who, input) {
   var file = input.files[0];
   if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var img = document.getElementById('photo-'+who);
-    var emoji = document.getElementById('emoji-'+who);
-    if(img) { img.src = e.target.result; img.style.display = 'block'; }
-    if(emoji) emoji.style.display = 'none';
-    try { localStorage.setItem('photo-'+who, e.target.result); } catch(err) {}
-  };
-  reader.readAsDataURL(file);
+  var ref = storage.ref('profiles/' + who + '.jpg');
+  var uploadTask = ref.put(file);
+  uploadTask.on('state_changed', null, function(err) {
+    alert('업로드 실패: ' + err.message);
+  }, function() {
+    uploadTask.snapshot.ref.getDownloadURL().then(function(url) {
+      showPhoto(who, url);
+      db.ref('photos/' + who).set(url);
+    });
+  });
 }
-// 저장된 사진 불러오기
-['sw','jh'].forEach(function(who) {
-  var saved = localStorage.getItem('photo-'+who);
-  if(saved) {
-    var img = document.getElementById('photo-'+who);
-    var emoji = document.getElementById('emoji-'+who);
-    if(img) { img.src = saved; img.style.display = 'block'; }
-    if(emoji) emoji.style.display = 'none';
-  }
+function showPhoto(who, url) {
+  var img = document.getElementById('photo-'+who);
+  var emoji = document.getElementById('emoji-'+who);
+  if(img) { img.src = url; img.style.display = 'block'; }
+  if(emoji) emoji.style.display = 'none';
+}
+// Firebase에서 사진 실시간 연동
+db.ref('photos').on('value', function(snap) {
+  var data = snap.val();
+  if(!data) return;
+  ['sw','jh'].forEach(function(who) {
+    if(data[who]) showPhoto(who, data[who]);
+  });
 });
 
 var fortuneCache = {}, currentFTab = 'sw';
