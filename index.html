@@ -279,7 +279,6 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 <script>var firebaseConfig = {
   apiKey: "AIzaSyDI147P7vWvsD_HV6opk-LOUBtnJFc1hHc",
   authDomain: "swnjh-57ed2.firebaseapp.com",
@@ -293,7 +292,6 @@ try {
   firebase.initializeApp(firebaseConfig);
 } catch(e) {}
 var db = firebase.database();
-var storage = firebase.storage();
 
 var START = new Date('2022-04-17');
 var NOW = new Date();
@@ -331,16 +329,25 @@ function goPage(p) {
 function setPhoto(who, input) {
   var file = input.files[0];
   if(!file) return;
-  var ref = storage.ref('profiles/' + who + '.jpg');
-  var uploadTask = ref.put(file);
-  uploadTask.on('state_changed', null, function(err) {
-    alert('업로드 실패: ' + err.message);
-  }, function() {
-    uploadTask.snapshot.ref.getDownloadURL().then(function(url) {
-      showPhoto(who, url);
-      db.ref('photos/' + who).set(url);
-    });
-  });
+  // Canvas로 이미지 압축 (최대 200x200, JPEG 0.7)
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img2 = new Image();
+    img2.onload = function() {
+      var canvas = document.createElement('canvas');
+      var max = 200;
+      var w = img2.width, h = img2.height;
+      if(w > h) { if(w > max){h=Math.round(h*max/w);w=max;} }
+      else { if(h > max){w=Math.round(w*max/h);h=max;} }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img2, 0, 0, w, h);
+      var compressed = canvas.toDataURL('image/jpeg', 0.7);
+      showPhoto(who, compressed);
+      db.ref('photos/' + who).set(compressed);
+    };
+    img2.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 function showPhoto(who, url) {
   var img = document.getElementById('photo-'+who);
