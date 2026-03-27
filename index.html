@@ -322,17 +322,20 @@ function goPage(p) {
     document.getElementById('nav-'+t).classList.toggle('active', t===p);
   });
   if(p==='fortune' && !fortuneCache['sw']) loadFortune('sw');
-  if(p==='calendar') function setPhoto(who, input) {
+  if(p==='calendar') renderCalendar();
+  window.scrollTo(0,0);
+}
+
+function setPhoto(who, input) {
   var file = input.files[0];
   if(!file) return;
   var reader = new FileReader();
   reader.onload = function(e) {
     var img = document.getElementById('photo-'+who);
     var emoji = document.getElementById('emoji-'+who);
-    img.src = e.target.result;
-    img.style.display = 'block';
-    emoji.style.display = 'none';
-    localStorage.setItem('photo-'+who, e.target.result);
+    if(img) { img.src = e.target.result; img.style.display = 'block'; }
+    if(emoji) emoji.style.display = 'none';
+    try { localStorage.setItem('photo-'+who, e.target.result); } catch(err) {}
   };
   reader.readAsDataURL(file);
 }
@@ -342,12 +345,10 @@ function goPage(p) {
   if(saved) {
     var img = document.getElementById('photo-'+who);
     var emoji = document.getElementById('emoji-'+who);
-    if(img) { img.src = saved; img.style.display = 'block'; emoji.style.display = 'none'; }
+    if(img) { img.src = saved; img.style.display = 'block'; }
+    if(emoji) emoji.style.display = 'none';
   }
 });
-renderCalendar();
-  window.scrollTo(0,0);
-}
 
 var fortuneCache = {}, currentFTab = 'sw';
 var todayStr = NOW.toLocaleDateString('ko-KR');
