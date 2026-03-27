@@ -487,7 +487,7 @@ function renderCalendar() {
   Object.keys(schedules).forEach(function(key) {
     if(key.startsWith(calYear+'-'+String(calMonth+1).padStart(2,'0')+'-')) {
       var day = parseInt(key.split('-')[2]);
-      schedules[key].forEach(function(s) {
+      Object.values(schedules[key]).forEach(function(s) {
         schHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">';
         schHtml += '<span>📅 '+s.text+'</span>';
         schHtml += '<span style="color:#c090ae;">'+(calMonth+1)+'월 '+day+'일</span>';
@@ -504,7 +504,7 @@ function renderScheduleList() {
   if(!el) return;
   var allSch = [];
   Object.keys(schedules).forEach(function(key) {
-    schedules[key].forEach(function(s) {
+    Object.values(schedules[key]).forEach(function(s) {
       allSch.push({key: key, id: s.id, text: s.text, date: key});
     });
   });
