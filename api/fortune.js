@@ -17,17 +17,22 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-opus-4-5',
         max_tokens: 800,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
+
+    if (!data.content || !Array.isArray(data.content)) {
+      return res.status(500).json({ error: 'Invalid API response: ' + JSON.stringify(data) });
+    }
+
     const text = data.content.map(i => i.text || '').join('');
     const clean = text.replace(/```json|```/g, '').trim();
     const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON found');
+    if (!jsonMatch) return res.status(500).json({ error: 'No JSON in response: ' + text });
     const parsed = JSON.parse(jsonMatch[0]);
     return res.status(200).json(parsed);
   } catch (error) {
