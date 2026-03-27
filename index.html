@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#fff0f5">
 <title>박세원 ♡ 이지현</title>
 <link rel="stylesheet" href="/font.css">
@@ -253,8 +253,7 @@ body{font-family:'BakDaHyeon',sans-serif;background:#fff9fb;color:#3d2b3d;min-he
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script>
-var firebaseConfig = {
+<script>var firebaseConfig = {
   apiKey: "AIzaSyDI147P7vWvsD_HV6opk-LOUBtnJFc1hHc",
   authDomain: "swnjh-57ed2.firebaseapp.com",
   databaseURL: "https://swnjh-57ed2-default-rtdb.firebaseio.com",
@@ -269,12 +268,19 @@ var db = firebase.database();
 var START = new Date('2022-04-17');
 var NOW = new Date();
 
-function daysUntil(m,d){var dt=new Date(NOW.getFullYear(),m-1,d);if(dt<=NOW)dt.setFullYear(NOW.getFullYear()+1);return Math.ceil((dt-NOW)/86400000);}
-function calcAge(y,m,d){var a=NOW.getFullYear()-y;if(NOW.getMonth()+1<m||(NOW.getMonth()+1===m&&NOW.getDate()<d))a--;return a;}
-
+function daysUntil(m,d){
+  var dt=new Date(NOW.getFullYear(),m-1,d);
+  if(dt<=NOW) dt.setFullYear(NOW.getFullYear()+1);
+  return Math.ceil((dt-NOW)/86400000);
+}
+function calcAge(y,m,d){
+  var a=NOW.getFullYear()-y;
+  if(NOW.getMonth()+1<m||(NOW.getMonth()+1===m&&NOW.getDate()<d)) a--;
+  return a;
+}
 var ddayVal = Math.floor((NOW-START)/86400000)+1;
 document.getElementById('dday').textContent = ddayVal.toLocaleString();
-document.getElementById('hero-sub').textContent = '사귄 지 '+ddayVal.toLocaleString()+'일째 🩷';
+document.getElementById('hero-sub').textContent = '사귄 지 '+ddayVal.toLocaleString()+'일째';
 document.getElementById('tobirthday-sw').textContent = daysUntil(3,8);
 document.getElementById('tobirthday-jh').textContent = daysUntil(5,15);
 document.getElementById('toanni').textContent = daysUntil(4,17);
@@ -295,25 +301,48 @@ function goPage(p) {
 var fortuneCache = {}, currentFTab = 'sw';
 var todayStr = NOW.toLocaleDateString('ko-KR');
 var fP = {
-  sw: '오늘('+todayStr+') 1996년 3월 8일생 남자 박세원의 운세를 귀엽고 따뜻하게. JSON만: {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
-  jh: '오늘('+todayStr+') 1999년 5월 15일생 여자 이지현의 운세를 귀엽고 따뜻하게. JSON만: {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
-  compat: '박세원(1996.3.8남)과 이지현(1999.5.15여) 오늘('+todayStr+') 궁합 운세. 귀엽게. JSON만: {"score":88,"stars":"⭐⭐⭐⭐⭐","summary":"한줄총평","연애궁합":"내용","성격궁합":"내용","미래궁합":"내용"}'
+  sw: '오늘('+todayStr+') 1996년 3월 8일생 남자 박세원의 운세를 귀엽고 따뜻하게. JSON만: {"total_stars":"\u2B50\u2B50\u2B50\u2B50","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
+  jh: '오늘('+todayStr+') 1999년 5월 15일생 여자 이지현의 운세를 귀엽고 따뜻하게. JSON만: {"total_stars":"\u2B50\u2B50\u2B50\u2B50","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
+  compat: '박세원(1996.3.8남)과 이지현(1999.5.15여) 오늘('+todayStr+') 궁합 운세. 귀엽게. JSON만: {"score":88,"stars":"\u2B50\u2B50\u2B50\u2B50\u2B50","summary":"한줄총평","연애궁합":"내용","성격궁합":"내용","미래궁합":"내용"}'
 };
 
 function renderFortune(tab, data) {
   var c = document.getElementById('fortune-card');
   if(tab==='compat') {
-    var bars = [{label:'연애궁합',key:'연애궁합',pct:Math.min(100,data.score+2)},{label:'성격궁합',key:'성격궁합',pct:Math.min(100,data.score-5)},{label:'미래궁합',key:'미래궁합',pct:Math.min(100,data.score+5)}];
-    c.innerHTML = '<div class="fortune-content"><span class="stars">'+data.stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:12px;">'+data.summary+'</div>'+bars.map(function(b){return '<div class="compat-bar-wrap"><div class="compat-bar-label"><span>'+b.label+'</span><span>'+b.pct+'%</span></div><div class="compat-bar-bg"><div class="compat-bar-fill" style="width:0%" data-pct="'+b.pct+'"></div></div><div style="font-size:13px;color:#b88aa8;margin-top:4px;line-height:1.7;">'+data[b.key]+'</div></div>';}).join('')+'</div>';
-    setTimeout(function(){c.querySelectorAll('.compat-bar-fill').forEach(function(el){el.style.width=el.dataset.pct+'%';});},100);
+    var bars = [
+      {label:'연애궁합',key:'연애궁합',pct:Math.min(100,data.score+2)},
+      {label:'성격궁합',key:'성격궁합',pct:Math.min(100,data.score-5)},
+      {label:'미래궁합',key:'미래궁합',pct:Math.min(100,data.score+5)}
+    ];
+    var h = '<div class="fortune-content">';
+    h += '<span class="stars">'+data.stars+'</span>';
+    h += '<div style="font-size:14px;line-height:1.8;margin-bottom:12px;">'+data.summary+'</div>';
+    bars.forEach(function(b) {
+      h += '<div class="compat-bar-wrap">';
+      h += '<div class="compat-bar-label"><span>'+b.label+'</span><span>'+b.pct+'%</span></div>';
+      h += '<div class="compat-bar-bg"><div class="compat-bar-fill" style="width:0%" data-pct="'+b.pct+'"></div></div>';
+      h += '<div style="font-size:13px;color:#b88aa8;margin-top:4px;line-height:1.7;">'+data[b.key]+'</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+    c.innerHTML = h;
+    setTimeout(function(){
+      c.querySelectorAll('.compat-bar-fill').forEach(function(el){el.style.width=el.dataset.pct+'%';});
+    },100);
   } else {
-    c.innerHTML = '<div class="fortune-content"><span class="stars">'+data.total_stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:10px;">'+data.summary+'</div><div class="cat">💕 연애운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['연애운']+'</div><div class="cat">💰 재물운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['재물운']+'</div><div class="cat">💪 건강운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['건강운']+'</div></div>';
+    var h = '<div class="fortune-content">';
+    h += '<span class="stars">'+data.total_stars+'</span>';
+    h += '<div style="font-size:14px;line-height:1.8;margin-bottom:10px;">'+data.summary+'</div>';
+    h += '<div class="cat">\uD83D\uDC95 연애운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['연애운']+'</div>';
+    h += '<div class="cat">\uD83D\uDCB0 재물운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['재물운']+'</div>';
+    h += '<div class="cat">\uD83D\uDCAA 건강운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['건강운']+'</div>';
+    h += '</div>';
+    c.innerHTML = h;
   }
 }
-
 function loadFortune(tab) {
   if(fortuneCache[tab]) { renderFortune(tab, fortuneCache[tab]); return; }
-  document.getElementById('fortune-card').innerHTML = '<div class="fortune-loading"><span class="spin">✨</span>운세 불러오는 중...</div>';
+  document.getElementById('fortune-card').innerHTML = '<div class="fortune-loading"><span class="spin">\u2728</span>운세 불러오는 중...</div>';
   fetch('/api/fortune', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:fP[tab]})})
     .then(function(r){return r.json();})
     .then(function(parsed){
@@ -322,131 +351,207 @@ function loadFortune(tab) {
       renderFortune(tab, parsed);
     })
     .catch(function(){
-      document.getElementById('fortune-card').innerHTML = '<div class="fortune-loading">운세를 불러오지 못했어요 😢<br><small style="color:#d0a0c0">잠시 후 다시 시도해주세요</small></div>';
+      document.getElementById('fortune-card').innerHTML = '<div class="fortune-loading">운세를 불러오지 못했어요 \uD83D\uDE22<br><small style="color:#d0a0c0">잠시 후 다시 시도해주세요</small></div>';
     });
 }
-function switchFortune(tab){currentFTab=tab;['sw','jh','compat'].forEach(function(t){document.getElementById('ftab-'+t).classList.toggle('active',t===tab);});loadFortune(tab);}
+function switchFortune(tab){
+  currentFTab=tab;
+  ['sw','jh','compat'].forEach(function(t){document.getElementById('ftab-'+t).classList.toggle('active',t===tab);});
+  loadFortune(tab);
+}
 function reloadFortune(){delete fortuneCache[currentFTab];loadFortune(currentFTab);}
 
 var calYear = NOW.getFullYear(), calMonth = NOW.getMonth();
-var calEvents = [{month:4,day:17,label:'💕 사귄 날',type:'anni'},{month:3,day:8,label:'🎂 세원 생일',type:'birth'},{month:5,day:15,label:'🎂 지현 생일',type:'birth'}];
+var calEvents = [
+  {month:4,day:17,label:'\uD83D\uDC95 사귄 날',type:'anni'},
+  {month:3,day:8,label:'\uD83C\uDF82 세원 생일',type:'birth'},
+  {month:5,day:15,label:'\uD83C\uDF82 지현 생일',type:'birth'}
+];
 function renderCalendar() {
   var months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('cal-title').textContent = calYear+'년 '+months[calMonth];
   var grid = document.getElementById('cal-grid');
-  grid.innerHTML = ['일','월','화','수','목','금','토'].map(function(d){return '<div class="cal-day-name">'+d+'</div>';}).join('');
+  var h = '';
+  ['일','월','화','수','목','금','토'].forEach(function(d){h+='<div class="cal-day-name">'+d+'</div>';});
   var first=new Date(calYear,calMonth,1).getDay(), total=new Date(calYear,calMonth+1,0).getDate(), prevTotal=new Date(calYear,calMonth,0).getDate();
-  for(var i=0;i<first;i++) grid.innerHTML += '<div class="cal-day other-month">'+(prevTotal-first+1+i)+'</div>';
+  for(var i=0;i<first;i++) h+='<div class="cal-day other-month">'+(prevTotal-first+1+i)+'</div>';
   for(var d=1;d<=total;d++) {
     var isToday = d===NOW.getDate()&&calMonth===NOW.getMonth()&&calYear===NOW.getFullYear();
-    var ev = calEvents.find(function(e){return e.month===calMonth+1&&e.day===d;});
-    grid.innerHTML += '<div class="cal-day'+(isToday?' today':'')+(ev?' event event-'+ev.type:'')+'">'+d+'</div>';
+    var ev = null;
+    for(var k=0;k<calEvents.length;k++){if(calEvents[k].month===calMonth+1&&calEvents[k].day===d){ev=calEvents[k];break;}}
+    h+='<div class="cal-day'+(isToday?' today':'')+(ev?' event event-'+ev.type:'')+'">'+d+'</div>';
   }
-  var rem = (7-((first+total)%7))%7;
-  for(var j=1;j<=rem;j++) grid.innerHTML += '<div class="cal-day other-month">'+j+'</div>';
+  var rem=(7-((first+total)%7))%7;
+  for(var j=1;j<=rem;j++) h+='<div class="cal-day other-month">'+j+'</div>';
+  grid.innerHTML = h;
   var monthEvs = calEvents.filter(function(e){return e.month===calMonth+1;});
-  document.getElementById('cal-events-list').innerHTML = monthEvs.length ? monthEvs.map(function(e){return '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;"><span>'+e.label+'</span><span style="color:#c090ae;">'+(calMonth+1)+'월 '+e.day+'일</span></div>';}).join('') : '<div class="empty-msg">이번 달 기념일이 없어요</div>';
+  var evHtml = '';
+  if(monthEvs.length) {
+    monthEvs.forEach(function(e){
+      evHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">';
+      evHtml += '<span>'+e.label+'</span>';
+      evHtml += '<span style="color:#c090ae;">'+(calMonth+1)+'월 '+e.day+'일</span>';
+      evHtml += '</div>';
+    });
+  } else {
+    evHtml = '<div class="empty-msg">이번 달 기념일이 없어요</div>';
+  }
+  document.getElementById('cal-events-list').innerHTML = evHtml;
 }
-function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function changeMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
 
 db.ref('capsules').on('value', function(snap) {
   var data = snap.val();
-  var list = data ? Object.entries(data).map(function(e){return Object.assign({},e[1],{key:e[0]});}).sort(function(a,b){return b.createdAt-a.createdAt;}) : [];
+  var list = [];
+  if(data) {
+    Object.keys(data).forEach(function(k){
+      var v = data[k]; v.key = k; list.push(v);
+    });
+    list.sort(function(a,b){return b.createdAt-a.createdAt;});
+  }
   var el = document.getElementById('capsule-list');
-  if(!list.length){el.innerHTML='<div class="empty-msg">아직 편지가 없어요 💌</div>';return;}
-  el.innerHTML = list.map(function(c) {
+  if(!list.length){el.innerHTML='<div class="empty-msg">아직 편지가 없어요 \uD83D\uDC8C</div>';return;}
+  var h = '';
+  list.forEach(function(c) {
     var od = new Date(c.date); od.setDate(od.getDate()+c.openAfter);
     var locked = od>NOW && c.openAfter>0;
-    return '<div class="capsule-item" onclick="openCapsule(''+c.key+'')">'+
-      '<span class="capsule-icon">'+(locked?'🔒':'💌')+'</span>'+
-      '<div class="capsule-info"><div class="capsule-title">'+c.title+'</div>'+
-      '<div class="capsule-meta">'+(locked?od.toLocaleDateString('ko-KR')+' 오픈 예정':c.date+' 작성')+'</div></div>'+
-      '<span style="color:#ffb3d1;font-size:20px;">'+(locked?'🔒':'›')+'</span></div>';
-  }).join('');
+    h += '<div class="capsule-item" data-key="'+c.key+'">';
+    h += '<span class="capsule-icon">'+(locked?'\uD83D\uDD12':'\uD83D\uDC8C')+'</span>';
+    h += '<div class="capsule-info">';
+    h += '<div class="capsule-title">'+c.title+'</div>';
+    h += '<div class="capsule-meta">'+(locked?od.toLocaleDateString('ko-KR')+' 오픈 예정':c.date+' 작성')+'</div>';
+    h += '</div>';
+    h += '<span style="color:#ffb3d1;font-size:20px;">'+(locked?'\uD83D\uDD12':'\u203A')+'</span>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
+  el.querySelectorAll('.capsule-item').forEach(function(item){
+    item.onclick = function(){ openCapsule(this.getAttribute('data-key')); };
+  });
 });
 function openCapsule(key) {
   db.ref('capsules/'+key).once('value', function(s) {
-    var d = s.val();
-    if(!d) return;
+    var d = s.val(); if(!d) return;
     var od = new Date(d.date); od.setDate(od.getDate()+d.openAfter);
-    if(od>NOW && d.openAfter>0){alert('아직 열 수 없어요!\n'+od.toLocaleDateString('ko-KR')+'에 열려요 🔒');return;}
-    alert('💌 '+d.title+'\n\n'+d.msg+'\n\n작성일: '+d.date);
+    if(od>NOW && d.openAfter>0){alert('아직 열 수 없어요!\n'+od.toLocaleDateString('ko-KR')+'에 열려요');return;}
+    alert('\uD83D\uDC8C '+d.title+'\n\n'+d.msg+'\n\n작성일: '+d.date);
   });
 }
 function addCapsule() {
-  var t=document.getElementById('cap-title').value.trim(), m=document.getElementById('cap-msg').value.trim(), o=parseInt(document.getElementById('cap-open').value);
-  if(!t||!m){alert('제목과 메시지를 입력해줘요 💕');return;}
+  var t=document.getElementById('cap-title').value.trim();
+  var m=document.getElementById('cap-msg').value.trim();
+  var o=parseInt(document.getElementById('cap-open').value);
+  if(!t||!m){alert('제목과 메시지를 입력해줘요');return;}
   db.ref('capsules').push({title:t,msg:m,date:NOW.toISOString().slice(0,10),openAfter:o,createdAt:Date.now()});
-  document.getElementById('cap-title').value=''; document.getElementById('cap-msg').value='';
+  document.getElementById('cap-title').value='';
+  document.getElementById('cap-msg').value='';
 }
 
 db.ref('countries').on('value', function(snap) {
   var data = snap.val();
-  var list = data ? Object.entries(data).map(function(e){return Object.assign({},e[1],{key:e[0]});}) : [];
+  var list = [];
+  if(data) { Object.keys(data).forEach(function(k){var v=data[k];v.key=k;list.push(v);}); }
   var grid = document.getElementById('country-grid');
-  if(!list.length){grid.innerHTML='<div class="empty-msg" style="grid-column:span 2">아직 여행지가 없어요 🗺️</div>';return;}
-  grid.innerHTML = list.map(function(c){
-    return '<div class="country-stamp visited" onclick="removeCountry(''+c.key+'')">'+
-      '<div class="stamp-check">✓</div><div class="stamp-flag">'+c.flag+'</div>'+
-      '<div class="stamp-name">'+c.name+'</div><div class="stamp-date">'+c.date+'</div></div>';
-  }).join('');
+  if(!list.length){grid.innerHTML='<div class="empty-msg" style="grid-column:span 2">아직 여행지가 없어요</div>';return;}
+  var h = '';
+  list.forEach(function(c) {
+    h += '<div class="country-stamp visited" data-key="'+c.key+'">';
+    h += '<div class="stamp-check">\u2713</div>';
+    h += '<div class="stamp-flag">'+c.flag+'</div>';
+    h += '<div class="stamp-name">'+c.name+'</div>';
+    h += '<div class="stamp-date">'+c.date+'</div>';
+    h += '</div>';
+  });
+  grid.innerHTML = h;
+  grid.querySelectorAll('.country-stamp').forEach(function(item){
+    item.onclick = function(){ removeCountry(this.getAttribute('data-key')); };
+  });
 });
 function addCountry() {
-  var n=document.getElementById('new-country').value.trim(), f=document.getElementById('new-flag').value.trim()||'🌍', d=document.getElementById('new-date').value.trim()||'방문';
-  if(!n){alert('나라 이름을 입력해줘요!');return;}
+  var n=document.getElementById('new-country').value.trim();
+  var f=document.getElementById('new-flag').value.trim()||'\uD83C\uDF0D';
+  var d=document.getElementById('new-date').value.trim()||'방문';
+  if(!n){alert('나라 이름을 입력해줘요');return;}
   db.ref('countries').push({name:n,flag:f,date:d});
-  document.getElementById('new-country').value=''; document.getElementById('new-flag').value=''; document.getElementById('new-date').value='';
+  document.getElementById('new-country').value='';
+  document.getElementById('new-flag').value='';
+  document.getElementById('new-date').value='';
 }
 function removeCountry(key){if(confirm('삭제할까요?')) db.ref('countries/'+key).remove();}
 
 db.ref('playlist').on('value', function(snap) {
   var data = snap.val();
-  var list = data ? Object.entries(data).map(function(e){return Object.assign({},e[1],{key:e[0]});}) : [];
+  var list = [];
+  if(data) { Object.keys(data).forEach(function(k){var v=data[k];v.key=k;list.push(v);}); }
   var el = document.getElementById('playlist-list');
-  if(!list.length){el.innerHTML='<div class="empty-msg">아직 노래가 없어요 🎵</div>';return;}
-  el.innerHTML = list.map(function(s,i){
-    return '<div class="playlist-item" id="pl-'+i+'" onclick="playSong('+i+')">'+
-      '<div class="pl-num">'+(i+1)+'</div>'+
-      '<div class="pl-info"><div class="pl-title">'+s.title+'</div><div class="pl-artist">'+s.artist+'</div></div>'+
-      '<div class="pl-icon">♡</div></div>';
-  }).join('');
+  if(!list.length){el.innerHTML='<div class="empty-msg">아직 노래가 없어요</div>';return;}
+  var h = '';
+  list.forEach(function(s,i) {
+    h += '<div class="playlist-item" data-idx="'+i+'">';
+    h += '<div class="pl-num">'+(i+1)+'</div>';
+    h += '<div class="pl-info"><div class="pl-title">'+s.title+'</div><div class="pl-artist">'+s.artist+'</div></div>';
+    h += '<div class="pl-icon">\u2661</div>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
+  el.querySelectorAll('.playlist-item').forEach(function(item){
+    item.onclick = function(){ playSong(parseInt(this.getAttribute('data-idx'))); };
+  });
 });
 function playSong(i){
   document.querySelectorAll('.playlist-item').forEach(function(el,idx){
     el.classList.toggle('playing',idx===i);
-    el.querySelector('.pl-icon').textContent = idx===i?'♪':'♡';
+    el.querySelector('.pl-icon').textContent = idx===i?'\u266A':'\u2661';
   });
 }
 function addSong() {
-  var t=document.getElementById('pl-title-input').value.trim(), a=document.getElementById('pl-artist-input').value.trim();
-  if(!t){alert('노래 제목을 입력해줘요!');return;}
+  var t=document.getElementById('pl-title-input').value.trim();
+  var a=document.getElementById('pl-artist-input').value.trim();
+  if(!t){alert('노래 제목을 입력해줘요');return;}
   db.ref('playlist').push({title:t,artist:a||'아티스트 미상'});
-  document.getElementById('pl-title-input').value=''; document.getElementById('pl-artist-input').value='';
+  document.getElementById('pl-title-input').value='';
+  document.getElementById('pl-artist-input').value='';
 }
 
 var chatWho = 'sw';
 db.ref('chat').limitToLast(100).on('value', function(snap) {
   var data = snap.val();
-  var messages = data ? Object.values(data).sort(function(a,b){return a.ts-b.ts;}) : [];
+  var messages = [];
+  if(data) {
+    Object.values(data).forEach(function(v){messages.push(v);});
+    messages.sort(function(a,b){return a.ts-b.ts;});
+  }
   var box = document.getElementById('chat-messages');
-  if(!messages.length){box.innerHTML='<div class="empty-msg">첫 메시지를 보내봐요 🩷</div>';return;}
-  box.innerHTML = messages.map(function(msg){
-    return '<div class="msg-row'+(msg.who===chatWho?' me':'')+'">'+
-      (msg.who!==chatWho?'<div class="msg-avatar">'+(msg.who==='sw'?'🧑':'👧')+'</div>':'')+
-      '<div style="display:flex;flex-direction:column;align-items:'+(msg.who===chatWho?'flex-end':'flex-start')+';gap:2px;">'+
-      '<div class="msg-bubble">'+msg.text+'</div>'+
-      '<div class="msg-time">'+msg.time+'</div></div>'+
-      (msg.who===chatWho?'<div class="msg-avatar">'+(msg.who==='sw'?'🧑':'👧')+'</div>':'')+
-      '</div>';
-  }).join('');
+  if(!messages.length){box.innerHTML='<div class="empty-msg">첫 메시지를 보내봐요</div>';return;}
+  var h = '';
+  messages.forEach(function(msg){
+    var isMe = msg.who===chatWho;
+    h += '<div class="msg-row'+(isMe?' me':'')+'">';
+    if(!isMe) h += '<div class="msg-avatar">'+(msg.who==='sw'?'\uD83E\uDDD1':'\uD83D\uDC67')+'</div>';
+    h += '<div style="display:flex;flex-direction:column;align-items:'+(isMe?'flex-end':'flex-start')+';gap:2px;">';
+    h += '<div class="msg-bubble">'+msg.text+'</div>';
+    h += '<div class="msg-time">'+msg.time+'</div>';
+    h += '</div>';
+    if(isMe) h += '<div class="msg-avatar">'+(msg.who==='sw'?'\uD83E\uDDD1':'\uD83D\uDC67')+'</div>';
+    h += '</div>';
+  });
+  box.innerHTML = h;
   box.scrollTop = box.scrollHeight;
-  document.getElementById('chat-status').textContent = '● 온라인';
+  document.getElementById('chat-status').textContent = '\u25CF 온라인';
 });
 function sendMsg() {
-  var input = document.getElementById('chat-input'), text = input.value.trim();
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
   if(!text) return;
-  var h=new Date().getHours(), m=new Date().getMinutes();
-  db.ref('chat').push({who:chatWho,text:text,time:(h>=12?'오후':'오전')+' '+(h>12?h-12:h)+':'+String(m).padStart(2,'0'),ts:Date.now()});
+  var n = new Date();
+  var h = n.getHours(), m = n.getMinutes();
+  var time = (h>=12?'오후':'오전')+' '+(h>12?h-12:h)+':'+String(m).padStart(2,'0');
+  db.ref('chat').push({who:chatWho,text:text,time:time,ts:Date.now()});
   input.value = '';
 }
 function setWho(who) {
