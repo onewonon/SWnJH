@@ -464,9 +464,16 @@ function renderCalendar() {
     var ev = null;
     for(var k=0;k<calEvents.length;k++){if(calEvents[k].month===calMonth+1&&calEvents[k].day===d){ev=calEvents[k];break;}}
     var dateKey = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    var hasSch = schedules[dateKey] && schedules[dateKey].length > 0;
-    h+='<div class="cal-day'+(isToday?' today':'')+(ev?' event event-'+ev.type:'')+(hasSch&&!ev?' has-schedule':'')+'">'+d;
-    if(hasSch&&!ev) h+='<div class="schedule-dot"></div>';
+    var rawSch = schedules[dateKey];
+    var daySch = rawSch ? (Array.isArray(rawSch) ? rawSch : Object.values(rawSch)) : [];
+    var hasSch = daySch.length > 0;
+    h+='<div class="cal-day'+(isToday?' today':'')+(ev?' event event-'+ev.type:'')+(hasSch&&!ev?' has-schedule':'')+'" data-date="'+dateKey+'" onclick="onDayClick(this)" style="min-height:44px;cursor:pointer;">'+d;
+    if(hasSch) {
+      daySch.slice(0,2).forEach(function(s) {
+        h+='<span style="display:block;font-size:8px;background:#ffd6e8;color:#d4608a;border-radius:4px;padding:1px 3px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;">'+s.text+'</span>';
+      });
+      if(daySch.length > 2) h+='<span style="display:block;font-size:8px;color:#c090ae;margin-top:1px;">+'+(daySch.length-2)+'</span>';
+    }
     h+='</div>';
   }
   var rem=(7-((first+total)%7))%7;
@@ -474,29 +481,21 @@ function renderCalendar() {
   grid.innerHTML = h;
   var monthEvs = calEvents.filter(function(e){return e.month===calMonth+1;});
   var evHtml = '';
-  if(monthEvs.length) {
-    monthEvs.forEach(function(e){
-      evHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">';
-      evHtml += '<span>'+e.label+'</span>';
-      evHtml += '<span style="color:#c090ae;">'+(calMonth+1)+'월 '+e.day+'일</span>';
-      evHtml += '</div>';
-    });
-  }
-  // 이번 달 스케줄 목록
+  monthEvs.forEach(function(e){
+    evHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;"><span>'+e.label+'</span><span style="color:#c090ae;">'+(calMonth+1)+'월 '+e.day+'일</span></div>';
+  });
   var schHtml = '';
   Object.keys(schedules).forEach(function(key) {
     if(key.startsWith(calYear+'-'+String(calMonth+1).padStart(2,'0')+'-')) {
       var day = parseInt(key.split('-')[2]);
-      Object.values(schedules[key]).forEach(function(s) {
-        schHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">';
-        schHtml += '<span>📅 '+s.text+'</span>';
-        schHtml += '<span style="color:#c090ae;">'+(calMonth+1)+'월 '+day+'일</span>';
-        schHtml += '</div>';
+      var arr = Array.isArray(schedules[key]) ? schedules[key] : Object.values(schedules[key]);
+      arr.forEach(function(s) {
+        schHtml += '<div style="background:#fff;border:1.5px solid #ffd0e6;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:14px;display:flex;justify-content:space-between;align-items:center;"><span>📅 '+s.text+'</span><span style="color:#c090ae;">'+(calMonth+1)+'월 '+day+'일</span></div>';
       });
     }
   });
-  if(!evHtml && !schHtml) evHtml = '<div class="empty-msg">이번 달 일정이 없어요</div>';
-  document.getElementById('cal-events-list').innerHTML = evHtml + schHtml;
+  if(!evHtml&&!schHtml) evHtml='<div class="empty-msg">이번 달 일정이 없어요</div>';
+  document.getElementById('cal-events-list').innerHTML = evHtml+schHtml;
   renderScheduleList();
 }
 function renderScheduleList() {
@@ -504,18 +503,14 @@ function renderScheduleList() {
   if(!el) return;
   var allSch = [];
   Object.keys(schedules).forEach(function(key) {
-    Object.values(schedules[key]).forEach(function(s) {
-      allSch.push({key: key, id: s.id, text: s.text, date: key});
-    });
+    var arr = Array.isArray(schedules[key]) ? schedules[key] : Object.values(schedules[key]);
+    arr.forEach(function(s) { allSch.push({key:key, id:s.id, text:s.text, date:key}); });
   });
   allSch.sort(function(a,b){return a.date.localeCompare(b.date);});
   if(!allSch.length){el.innerHTML='';return;}
   var h = '<div class="form-label" style="margin-top:4px;">저장된 스케줄</div>';
   allSch.forEach(function(s) {
-    h += '<div class="schedule-item" data-key="'+s.key+'" data-id="'+s.id+'">';
-    h += '<span>'+s.date+' — '+s.text+'</span>';
-    h += '<button class="schedule-del">×</button>';
-    h += '</div>';
+    h += '<div class="schedule-item" data-key="'+s.key+'" data-id="'+s.id+'"><span>'+s.date+' — '+s.text+'</span><button class="schedule-del">×</button></div>';
   });
   el.innerHTML = h;
   el.querySelectorAll('.schedule-del').forEach(function(btn) {
@@ -542,7 +537,6 @@ function addSchedule() {
 function delSchedule(dateKey, id) {
   if(confirm('스케줄을 삭제할까요?')) db.ref('schedules/'+dateKey+'/'+id).remove();
 }
-// Firebase 스케줄 실시간 연동
 db.ref('schedules').on('value', function(snap) {
   schedules = snap.val() || {};
   renderCalendar();
