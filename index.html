@@ -269,9 +269,34 @@ const pages=['home','fortune','calendar','capsule','map','playlist','chat'];
 function goPage(p){pages.forEach(t=>{document.getElementById('page-'+t).classList.toggle('active',t===p);document.getElementById('nav-'+t).classList.toggle('active',t===p);});if(p==='fortune'&&!fortuneCache['sw'])loadFortune('sw');if(p==='calendar')renderCalendar();window.scrollTo(0,0);}
 let fortuneCache={},currentFTab='sw';
 const todayStr=NOW.toLocaleDateString('ko-KR');
-const fP={sw:'오늘('+todayStr+') 1996년 3월 8일생 남자 박세원의 운세를 귀엽고 따뜻하게. JSON만(백틱없이): {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',jh:'오늘('+todayStr+') 1999년 5월 15일생 여자 이지현의 운세를 귀엽고 따뜻하게. JSON만(백틱없이): {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',compat:'박세원(1996.3.8 남)과 이지현(1999.5.15 여) 오늘('+todayStr+') 궁합 운세. 귀엽고 설레게. JSON만(백틱없이): {"score":88,"stars":"⭐⭐⭐⭐⭐","summary":"한줄총평","연애궁합":"내용","성격궁합":"내용","미래궁합":"내용"}'};
-function renderFortune(tab,data){const c=document.getElementById('fortune-card');if(tab==='compat'){const bars=[{label:'연애궁합',key:'연애궁합',pct:Math.min(100,data.score+2)},{label:'성격궁합',key:'성격궁합',pct:Math.min(100,data.score-5)},{label:'미래궁합',key:'미래궁합',pct:Math.min(100,data.score+5)}];c.innerHTML='<div class="fortune-content"><span class="stars">'+data.stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:12px;">'+data.summary+'</div>'+bars.map(b=>'<div class="compat-bar-wrap"><div class="compat-bar-label"><span>'+b.label+'</span><span>'+b.pct+'%</span></div><div class="compat-bar-bg"><div class="compat-bar-fill" style="width:0%" data-pct="'+b.pct+'"></div></div><div style="font-size:13px;color:#b88aa8;margin-top:4px;line-height:1.7;">'+data[b.key]+'</div></div>').join('')+'</div>';setTimeout(()=>c.querySelectorAll('.compat-bar-fill').forEach(el=>el.style.width=el.dataset.pct+'%'),100);}else{c.innerHTML='<div class="fortune-content"><span class="stars">'+data.total_stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:10px;">'+data.summary+'</div><div class="cat">💕 연애운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['연애운']+'</div><div class="cat">💰 재물운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['재물운']+'</div><div class="cat">💪 건강운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['건강운']+'</div></div>';}}
-async function loadFortune(tab){if(fortuneCache[tab]){renderFortune(tab,fortuneCache[tab]);return;}document.getElementById('fortune-card').innerHTML='<div class="fortune-loading"><span class="spin">✨</span>운세 불러오는 중...</div>';try{const res=await fetch('/api/fortune',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fP[tab]})});const d=await res.json();const text=d.content.map(i=>i.text||'').join('');const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());fortuneCache[tab]=parsed;renderFortune(tab,parsed);}catch(e){document.getElementById('fortune-card').innerHTML='<div class="fortune-loading">운세를 불러오지 못했어요 😢<br><small style="color:#d0a0c0">잠시 후 다시 시도해주세요</small></div>';}}
+const fP={
+  sw:'오늘('+todayStr+') 1996년 3월 8일생 남자 박세원의 운세를 귀엽고 따뜻하게. 반드시 JSON만 반환, 다른 텍스트 없이: {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
+  jh:'오늘('+todayStr+') 1999년 5월 15일생 여자 이지현의 운세를 귀엽고 따뜻하게. 반드시 JSON만 반환, 다른 텍스트 없이: {"total_stars":"⭐⭐⭐⭐","summary":"한줄총평","연애운":"내용","재물운":"내용","건강운":"내용"}',
+  compat:'박세원(1996.3.8 남)과 이지현(1999.5.15 여) 오늘('+todayStr+') 궁합 운세. 귀엽고 설레게. 반드시 JSON만 반환, 다른 텍스트 없이: {"score":88,"stars":"⭐⭐⭐⭐⭐","summary":"한줄총평","연애궁합":"내용","성격궁합":"내용","미래궁합":"내용"}'
+};
+function renderFortune(tab,data){
+  const c=document.getElementById('fortune-card');
+  if(tab==='compat'){
+    const bars=[{label:'연애궁합',key:'연애궁합',pct:Math.min(100,data.score+2)},{label:'성격궁합',key:'성격궁합',pct:Math.min(100,data.score-5)},{label:'미래궁합',key:'미래궁합',pct:Math.min(100,data.score+5)}];
+    c.innerHTML='<div class="fortune-content"><span class="stars">'+data.stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:12px;">'+data.summary+'</div>'+bars.map(b=>'<div class="compat-bar-wrap"><div class="compat-bar-label"><span>'+b.label+'</span><span>'+b.pct+'%</span></div><div class="compat-bar-bg"><div class="compat-bar-fill" style="width:0%" data-pct="'+b.pct+'"></div></div><div style="font-size:13px;color:#b88aa8;margin-top:4px;line-height:1.7;">'+data[b.key]+'</div></div>').join('')+'</div>';
+    setTimeout(()=>c.querySelectorAll('.compat-bar-fill').forEach(el=>el.style.width=el.dataset.pct+'%'),100);
+  } else {
+    c.innerHTML='<div class="fortune-content"><span class="stars">'+data.total_stars+'</span><div style="font-size:14px;line-height:1.8;margin-bottom:10px;">'+data.summary+'</div><div class="cat">💕 연애운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['연애운']+'</div><div class="cat">💰 재물운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['재물운']+'</div><div class="cat">💪 건강운</div><div style="font-size:13px;color:#666;line-height:1.7;">'+data['건강운']+'</div></div>';
+  }
+}
+async function loadFortune(tab){
+  if(fortuneCache[tab]){renderFortune(tab,fortuneCache[tab]);return;}
+  document.getElementById('fortune-card').innerHTML='<div class="fortune-loading"><span class="spin">✨</span>운세 불러오는 중...</div>';
+  try{
+    const res=await fetch('/api/fortune',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fP[tab]})});
+    const parsed=await res.json();
+    if(parsed.error) throw new Error(parsed.error);
+    fortuneCache[tab]=parsed;
+    renderFortune(tab,parsed);
+  } catch(e){
+    document.getElementById('fortune-card').innerHTML='<div class="fortune-loading">운세를 불러오지 못했어요 😢<br><small style="color:#d0a0c0">잠시 후 다시 시도해주세요</small></div>';
+  }
+}
 function switchFortune(tab){currentFTab=tab;['sw','jh','compat'].forEach(t=>document.getElementById('ftab-'+t).classList.toggle('active',t===tab));loadFortune(tab);}
 function reloadFortune(){delete fortuneCache[currentFTab];loadFortune(currentFTab);}
 let calYear=NOW.getFullYear(),calMonth=NOW.getMonth();
