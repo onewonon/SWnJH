@@ -514,9 +514,18 @@ function renderScheduleList() {
   if(!allSch.length){el.innerHTML='';return;}
   var h = '<div class="form-label" style="margin-top:4px;">저장된 스케줄</div>';
   allSch.forEach(function(s) {
-    h += '<div class="schedule-item"><span>'+s.date+' — '+s.text+'</span><button class="schedule-del" onclick="delSchedule(''+s.key+'',''+s.id+'')">×</button></div>';
+    h += '<div class="schedule-item" data-key="'+s.key+'" data-id="'+s.id+'">';
+    h += '<span>'+s.date+' — '+s.text+'</span>';
+    h += '<button class="schedule-del">×</button>';
+    h += '</div>';
   });
   el.innerHTML = h;
+  el.querySelectorAll('.schedule-del').forEach(function(btn) {
+    btn.onclick = function() {
+      var item = this.parentElement;
+      delSchedule(item.getAttribute('data-key'), item.getAttribute('data-id'));
+    };
+  });
 }
 function addSchedule() {
   var dateVal = document.getElementById('sch-date').value;
